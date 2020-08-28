@@ -1,58 +1,104 @@
 <template>
   <div class="hello">
     <h1>{{ msg }}</h1>
-    <p>
-      For a guide and recipes on how to configure / customize this project,<br>
-      check out the
-      <a href="https://cli.vuejs.org" target="_blank" rel="noopener">vue-cli documentation</a>.
-    </p>
-    <h3>Installed CLI Plugins</h3>
-    <ul>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-babel" target="_blank" rel="noopener">babel</a></li>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-eslint" target="_blank" rel="noopener">eslint</a></li>
-    </ul>
-    <h3>Essential Links</h3>
-    <ul>
-      <li><a href="https://vuejs.org" target="_blank" rel="noopener">Core Docs</a></li>
-      <li><a href="https://forum.vuejs.org" target="_blank" rel="noopener">Forum</a></li>
-      <li><a href="https://chat.vuejs.org" target="_blank" rel="noopener">Community Chat</a></li>
-      <li><a href="https://twitter.com/vuejs" target="_blank" rel="noopener">Twitter</a></li>
-      <li><a href="https://news.vuejs.org" target="_blank" rel="noopener">News</a></li>
-    </ul>
-    <h3>Ecosystem</h3>
-    <ul>
-      <li><a href="https://router.vuejs.org" target="_blank" rel="noopener">vue-router</a></li>
-      <li><a href="https://vuex.vuejs.org" target="_blank" rel="noopener">vuex</a></li>
-      <li><a href="https://github.com/vuejs/vue-devtools#vue-devtools" target="_blank" rel="noopener">vue-devtools</a></li>
-      <li><a href="https://vue-loader.vuejs.org" target="_blank" rel="noopener">vue-loader</a></li>
-      <li><a href="https://github.com/vuejs/awesome-vue" target="_blank" rel="noopener">awesome-vue</a></li>
-    </ul>
+      <el-row>
+        <el-col :span="23">
+          <div class="block">
+            <span class="demonstration">PRIME1</span>
+            <el-slider v-model="PRIME1" @change="showData"></el-slider>
+          </div>
+          <div class="block">
+            <span class="demonstration">PRIME2</span>
+            <el-slider v-model="PRIME2" @change="showData"></el-slider>
+          </div>
+          <div class="block">
+            <span class="demonstration">SLAT</span>
+            <el-slider v-model="SLAT" :max="99999999999" @change="showData"></el-slider>
+          </div>
+
+          <div class="block">
+            <span class="demonstration">CODE_LENGTH</span>
+            <el-slider v-model="CODE_LENGTH" :max="8" show-stops @change="showData"></el-slider>
+          </div>
+        </el-col>
+    </el-row>
+
+    <line-chart :chart-data="lineChartData" :x-axis="CHARS" />
   </div>
 </template>
 
 <script>
+import LineChart from "./LineChart";
+
 export default {
   name: 'HelloWorld',
+  components: {LineChart},
   props: {
     msg: String
+  },
+  data() {
+    return {
+      PRIME1:3,
+      PRIME2:11,
+      SLAT: 1234561,
+      CODE_LENGTH: 6,
+      CHARS_LENGTH: 32,
+      CHARS:['F', 'L', 'G', 'W', '5', 'X', 'C', '3',
+        '9', 'Z', 'M', '6', '7', 'Y', 'R', 'T', '2', 'H', 'S', '8', 'D', 'V', 'E', 'J', '4', 'K',
+        'Q', 'P', 'U', 'A', 'N', 'B'],
+      val:[],
+      lineChartData:  []
+    }
+  },
+  created() {
+    this.showData()
+  },
+  methods:{
+    gen($id)
+    {
+      //补位
+      $id = $id * this.PRIME1 + this.SLAT;
+      //将 id 转换成32进制的值
+      let $b = Array();
+      //32进制数
+      $b[0] = $id;
+      for (let $i = 0; $i < this.CODE_LENGTH - 1; $i++) {
+        $b[$i + 1] = Math.floor($b[$i] / this.CHARS_LENGTH);
+        //按位扩散
+        $b[$i] = ($b[$i] + $i * $b[0]) % this.CHARS_LENGTH;
+      }
+      let $s = 0;
+      for (let $j = 0; $j < this.CODE_LENGTH - 1; $j++) {
+        $s += $b[$j];
+      }
+      $b[this.CODE_LENGTH - 1] = $s * this.PRIME1 % this.CHARS_LENGTH;
+
+
+      //进行混淆
+      let $str = "";
+      for (let $i = 0; $i < this.CODE_LENGTH; $i++) {
+        //$codeIndexArray[$i] = $b[$i * PRIME2 % CODE_LENGTH];
+        let index = $b[$i * this.PRIME2 % this.CODE_LENGTH];
+        $str = $str.concat( this.CHARS[index]);
+        this.val[index]++
+      }
+      // console.log($id, $str);
+    },
+    showData(){
+      // console.log(this.PRIME1, this.PRIME2, this.SLAT, this.CODE_LENGTH);
+      this.val = [
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+      ];
+      for (let i=0;i<100000;i++) {
+        this.gen(i);
+      }
+      this.lineChartData = this.val;
+    }
   }
 }
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-h3 {
-  margin: 40px 0 0;
-}
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
-a {
-  color: #42b983;
-}
+
 </style>

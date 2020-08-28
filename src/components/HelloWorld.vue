@@ -54,35 +54,35 @@ export default {
     this.showData()
   },
   methods:{
-    gen($id)
+    gen(id)
     {
       //补位
-      $id = $id * this.PRIME1 + this.SLAT;
+      id = id * this.PRIME1 + this.SLAT;
       //将 id 转换成32进制的值
-      let $b = Array();
+      let b = Array();
       //32进制数
-      $b[0] = $id;
-      for (let $i = 0; $i < this.CODE_LENGTH - 1; $i++) {
-        $b[$i + 1] = Math.floor($b[$i] / this.CHARS_LENGTH);
+      b[0] = id;
+      for (let i = 0; i < this.CODE_LENGTH - 1; i++) {
+        b[i + 1] = Math.floor(b[i] / this.CHARS_LENGTH);
         //按位扩散
-        $b[$i] = ($b[$i] + $i * $b[0]) % this.CHARS_LENGTH;
+        b[i] = (b[i] + i * b[0]) % this.CHARS_LENGTH;
       }
-      let $s = 0;
-      for (let $j = 0; $j < this.CODE_LENGTH - 1; $j++) {
-        $s += $b[$j];
+      let s = 0;
+      for (let j = 0; j < this.CODE_LENGTH - 1; j++) {
+        s += b[j];
       }
-      $b[this.CODE_LENGTH - 1] = $s * this.PRIME1 % this.CHARS_LENGTH;
+      b[this.CODE_LENGTH - 1] = s * this.PRIME1 % this.CHARS_LENGTH;
 
 
       //进行混淆
-      let $str = "";
-      for (let $i = 0; $i < this.CODE_LENGTH; $i++) {
-        //$codeIndexArray[$i] = $b[$i * PRIME2 % CODE_LENGTH];
-        let index = $b[$i * this.PRIME2 % this.CODE_LENGTH];
-        $str = $str.concat( this.CHARS[index]);
+      let str = "";
+      for (let i = 0; i < this.CODE_LENGTH; i++) {
+        //codeIndexArray[i] = b[i * PRIME2 % CODE_LENGTH];
+        let index = b[i * this.PRIME2 % this.CODE_LENGTH];
+        str = str.concat( this.CHARS[index]);
         this.val[index]++
       }
-      // console.log($id, $str);
+      // console.log(id, str);
     },
     showData(){
       // console.log(this.PRIME1, this.PRIME2, this.SLAT, this.CODE_LENGTH);
